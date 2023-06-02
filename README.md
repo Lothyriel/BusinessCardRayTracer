@@ -2,7 +2,7 @@ My attempt to play with Andrew Kensler's Business Card Raytracer algorithm
 
 https://fabiensanglard.net/rayTracing_back_of_business_card/
 
-build: c++ -O3 -o card modified_deobfuscated_card.cpp
+build: c++ -O3 -o card deobfuscated_card.cpp
 run: ./card > card.ppm
 
 
