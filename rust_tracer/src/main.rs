@@ -146,8 +146,8 @@ fn should_render_sphere(j: i32, k: i32) -> bool {
 
     let location = row & collumn_bit_offset;
     //0 = empty space
-    //1 = sphere
-    location == 1
+    //value = sphere
+    location != 0
 }
 
 fn sample_pixel_color(direction: Vec3, origin: Vec3) -> Vec3 {
