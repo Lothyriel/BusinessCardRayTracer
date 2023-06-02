@@ -184,7 +184,7 @@ fn should_render_sphere(j: i32, k: i32) -> bool {
 
     let location = row & collumn_bit_offset;
     //0 = empty space
-    //value = sphere
+    //non-zero = sphere
     location != 0
 }
 
