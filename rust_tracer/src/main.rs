@@ -13,6 +13,13 @@ const SPHERES_LOCATION: [u32; 9] = [
     508418, 278788, 278664, 278608, 16416, 16464, 16520, 16644, 522754,
 ];
 
+#[derive(PartialEq, Eq)]
+enum RayCollision {
+    None,
+    Plane,
+    Sphere,
+}
+
 fn main() {
     let width = 512;
     let height = 512;
@@ -71,16 +78,21 @@ fn random() -> f32 {
     rand::thread_rng().gen()
 }
 
-fn trace(direction: Vec3, origin: Vec3, distance: &mut f32, surface_normal: &mut Vec3) -> i32 {
+fn trace(
+    direction: Vec3,
+    origin: Vec3,
+    distance: &mut f32,
+    surface_normal: &mut Vec3,
+) -> RayCollision {
     *distance = 1e9;
 
-    let mut material = 0;
+    let mut collision = RayCollision::None;
     let intersection_distance = -direction.z / origin.z;
 
     if 0.01 < intersection_distance {
         *distance = intersection_distance;
         *surface_normal = Vec3::new(0., 0., 1.);
-        material = 1;
+        collision = RayCollision::Plane;
     }
 
     for k in (0..19).rev() {
@@ -94,18 +106,20 @@ fn trace(direction: Vec3, origin: Vec3, distance: &mut f32, surface_normal: &mut
                 let discriminant = projection * projection - quadratic_coefficient;
 
                 if discriminant > 0. {
-                    let s = -projection - discriminant.sqrt();
-                    if s < *distance && s > 0.01 {
-                        *distance = s;
+                    let sphere_intersection_distance = -projection - discriminant.sqrt();
+                    if sphere_intersection_distance < *distance
+                        && sphere_intersection_distance > 0.01
+                    {
+                        *distance = sphere_intersection_distance;
                         *surface_normal = p.add(origin.scale(*distance)).norm();
-                        material = 2;
+                        collision = RayCollision::Sphere;
                     }
                 }
             }
         }
     }
 
-    material //material intersection 0 = None, 1 = plane, 2 = sphere
+    collision
 }
 
 fn sample_pixel_color(direction: Vec3, origin: Vec3) -> Vec3 {
@@ -113,9 +127,9 @@ fn sample_pixel_color(direction: Vec3, origin: Vec3) -> Vec3 {
 
     let mut surface_normal = Vec3::zero();
 
-    let material = trace(direction, origin, &mut distance, &mut surface_normal);
+    let collision = trace(direction, origin, &mut distance, &mut surface_normal);
 
-    if material == 0 {
+    if collision == RayCollision::None {
         let a1 = 1. - origin.z;
         return Vec3::new(0.7, 0.6, 1.).scale(a1.powf(4.));
     }
@@ -136,12 +150,12 @@ fn sample_pixel_color(direction: Vec3, origin: Vec3) -> Vec3 {
             light_direction,
             &mut distance,
             &mut surface_normal,
-        ) != 0
+        ) != RayCollision::None
     {
         brightness = 0.;
     }
 
-    if material & 1 != 0 {
+    if collision == RayCollision::Plane {
         hit_point = hit_point.scale(0.2);
 
         let a1 = hit_point.x.ceil() + hit_point.y.ceil();
