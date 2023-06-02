@@ -14,8 +14,8 @@ const SPHERES_LOCATION: [u32; 9] = [
 ];
 
 fn main() {
-    let width: u32 = 512;
-    let height: u32 = 512;
+    let width = 512;
+    let height = 512;
 
     render_image(width, height);
 }
