@@ -52,7 +52,7 @@ int spheres_location[] = {
     16644,
     522754};
 
-float random()
+float random_normalized()
 {
     return (float)rand() / RAND_MAX;
 }
@@ -87,31 +87,31 @@ int trace(Vector3 o, Vector3 d, float &t, Vector3 &n)
 
 Vector3 sample(Vector3 o, Vector3 d)
 {
-    float t;
-    Vector3 n;
-    int m = trace(o, d, t, n);
+    float distance;
+    Vector3 surface_normal;
+    int material = trace(o, d, distance, surface_normal);
 
-    if (!m)
+    if (!material)
         return Vector3(.7, .6, 1) * pow(1 - d.z, 4);
 
-    Vector3 h = o + d * t;
-    Vector3 l = !(Vector3(9 + random(), 9 + random(), 16) + h * -1);
-    Vector3 r = d + n * (n % d * -2);
+    Vector3 hit_point = o + d * distance;
+    Vector3 light_direction = !(Vector3(9 + random_normalized(), 9 + random_normalized(), 16) + hit_point * -1);
+    Vector3 reflected_ray = d + surface_normal * (surface_normal % d * -2);
 
-    float b = l % n;
+    float brightness = light_direction % surface_normal;
 
-    if (b < 0 || trace(h, l, t, n))
-        b = 0;
+    if (brightness < 0 || trace(hit_point, light_direction, distance, surface_normal))
+        brightness = 0;
 
-    float p = pow(l % r * (b > 0), 99);
+    float contribution = pow(light_direction % reflected_ray * (brightness > 0), 99);
 
-    if (m & 1)
+    if (material & 1)
     {
-        h = h * .2;
-        return ((int)(ceil(h.x) + ceil(h.y)) & 1 ? Vector3(3, 1, 1) : Vector3(3, 3, 3)) * (b * .2 + .1);
+        hit_point = hit_point * .2;
+        return ((int)(ceil(hit_point.x) + ceil(hit_point.y)) & 1 ? Vector3(3, 1, 1) : Vector3(3, 3, 3)) * (brightness * .2 + .1);
     }
 
-    return Vector3(p, p, p) + sample(h, r) * .5;
+    return Vector3(contribution, contribution, contribution) + sample(hit_point, reflected_ray) * .5;
 }
 
 int main()
@@ -119,10 +119,10 @@ int main()
     const int WIDTH = 512;
     const int HEIGHT = 512;
 
-    Vector3 g = !Vector3(-6, -16, 0);
-    Vector3 a = !(Vector3(0, 0, 1) ^ g) * .002;
-    Vector3 b = !(g ^ a) * .002;
-    Vector3 c = (a + b) * -256 + g;
+    Vector3 camera_direction = !Vector3(-6, -16, 0);
+    Vector3 camera_right = !(Vector3(0, 0, 1) ^ camera_direction) * .002;
+    Vector3 camera_up = !(camera_direction ^ camera_right) * .002;
+    Vector3 camera_position = (camera_right + camera_up) * -256 + camera_direction;
 
     for (int y = HEIGHT; y--;)
         for (int x = WIDTH; x--;)
@@ -130,9 +130,10 @@ int main()
             Vector3 pixel_color(13, 13, 13);
             for (int r = 64; r--;)
             {
-                Vector3 t = a * (random() - .5) * 99 + b * (random() - .5) * 99;
-                Vector3 o = !(t * -1 + (a * (random() + x) + b * (y + random()) + c) * 16);
-                pixel_color = sample(Vector3(17, 16, 8) + t, o) * 3.5 + pixel_color;
+                Vector3 offset = camera_right * (random_normalized() - .5) * 99 + camera_up * (random_normalized() - .5) * 99;
+                Vector3 ray_origin = !(offset * -1 + (camera_right * (random_normalized() + x) + camera_up * (y + random_normalized()) + camera_position) * 16);
+                Vector3 sampled_color = sample(Vector3(17, 16, 8) + offset, ray_origin);
+                pixel_color = sampled_color * 3.5 + pixel_color;
             }
             printf("%d %d %d\n", (int)pixel_color.x, (int)pixel_color.y, (int)pixel_color.z);
         }
