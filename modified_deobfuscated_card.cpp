@@ -71,7 +71,10 @@ int trace(Vector3 o, Vector3 d, float &t, Vector3 &n)
             if (spheres_location[j] & 1 << k)
             {
                 Vector3 p = o + Vector3(-k, 0, -j - 4);
-                float b = p % d, c = p % p - 1, q = b * b - c;
+                float b = p % d;
+                float c = p % p - 1;
+                float q = b * b - c;
+
                 if (q > 0)
                 {
                     float s = -b - sqrt(q);
@@ -91,7 +94,9 @@ Vector3 sample(Vector3 o, Vector3 d)
     if (!m)
         return Vector3(.7, .6, 1) * pow(1 - d.z, 4);
 
-    Vector3 h = o + d * t, l = !(Vector3(9 + random(), 9 + random(), 16) + h * -1), r = d + n * (n % d * -2);
+    Vector3 h = o + d * t;
+    Vector3 l = !(Vector3(9 + random(), 9 + random(), 16) + h * -1);
+    Vector3 r = d + n * (n % d * -2);
 
     float b = l % n;
 
@@ -111,15 +116,23 @@ Vector3 sample(Vector3 o, Vector3 d)
 
 int main()
 {
-    Vector3 g = !Vector3(-6, -16, 0), a = !(Vector3(0, 0, 1) ^ g) * .002, b = !(g ^ a) * .002, c = (a + b) * -256 + g;
-    for (int y = 512; y--;)
-        for (int x = 512; x--;)
+    const int WIDTH = 512;
+    const int HEIGHT = 512;
+
+    Vector3 g = !Vector3(-6, -16, 0);
+    Vector3 a = !(Vector3(0, 0, 1) ^ g) * .002;
+    Vector3 b = !(g ^ a) * .002;
+    Vector3 c = (a + b) * -256 + g;
+
+    for (int y = HEIGHT; y--;)
+        for (int x = WIDTH; x--;)
         {
             Vector3 pixel_color(13, 13, 13);
             for (int r = 64; r--;)
             {
                 Vector3 t = a * (random() - .5) * 99 + b * (random() - .5) * 99;
-                pixel_color = sample(Vector3(17, 16, 8) + t, !(t * -1 + (a * (random() + x) + b * (y + random()) + c) * 16)) * 3.5 + pixel_color;
+                Vector3 o = !(t * -1 + (a * (random() + x) + b * (y + random()) + c) * 16);
+                pixel_color = sample(Vector3(17, 16, 8) + t, o) * 3.5 + pixel_color;
             }
             printf("%d %d %d\n", (int)pixel_color.x, (int)pixel_color.y, (int)pixel_color.z);
         }
