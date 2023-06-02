@@ -2,8 +2,12 @@ My attempt to play with Andrew Kensler's Business Card Raytracer algorithm
 
 https://fabiensanglard.net/rayTracing_back_of_business_card/
 
-build: c++ -O3 -o card deobfuscated_card.cpp
-run: ./card > card.ppm
+C++:
+    build: c++ -O3 -o card deobfuscated_card.cpp
+    run: ./card > card.ppm
+
+Rust
+    run: cargo run --release
 
 
 - deobfuscated some names and typedefs to make it cleared to read
