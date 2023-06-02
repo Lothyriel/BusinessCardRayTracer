@@ -35,7 +35,7 @@ namespace ImageConverter.Formats
 
         private (int width, int height, List<List<byte>> pixels) GetSections()
         {
-            var pixelColors = File.LazySplit('\n').Select(x => x.Split(' ').Select(y => Convert.ToByte(y)).ToList());
+            var pixelColors = File.LazySplit('\n').SkipLast(1).Select(x => x.Split(' ').Select(y => Convert.ToByte(y)).ToList());
 
             return (512, 512, pixelColors.ToList());
         }
