@@ -68,7 +68,7 @@ fn render_image(width: u32, height: u32) {
 
             print!(
                 "{} {} {}\n",
-                pixel_color.x as u32, pixel_color.y as u32, pixel_color.z as u32
+                pixel_color.x as i32, pixel_color.y as i32, pixel_color.z as i32
             );
         }
     }
@@ -96,9 +96,8 @@ fn trace(
     }
 
     for k in (0..19).rev() {
-        for j in (0..9i32).rev() {
-            let render_sphere = SPHERES_LOCATION[j as usize] & 1 << k != 0;
-            if render_sphere {
+        for j in (0..9).rev() {
+            if should_render_sphere(j, k) {
                 let p = direction.add(Vec3::new(-k as f32, 0., -j as f32 - 4.));
 
                 let projection = p.dot(origin);
@@ -120,6 +119,18 @@ fn trace(
     }
 
     collision
+}
+
+fn should_render_sphere(j: i32, k: i32) -> bool {
+    //Spheres location are stored as 9x19 bits matrice on this i32 array
+    let row = SPHERES_LOCATION[j as usize];
+
+    let collumn_bit_offset = 1 << k;
+
+    let location = row & collumn_bit_offset;
+    //0 = empty space
+    //1 = sphere
+    location == 1
 }
 
 fn sample_pixel_color(direction: Vec3, origin: Vec3) -> Vec3 {
@@ -158,9 +169,9 @@ fn sample_pixel_color(direction: Vec3, origin: Vec3) -> Vec3 {
     if collision == RayCollision::Plane {
         hit_point = hit_point.scale(0.2);
 
-        let a1 = hit_point.x.ceil() + hit_point.y.ceil();
+        let discriminant = hit_point.x.ceil() + hit_point.y.ceil();
 
-        let color = if a1 as i32 & 1 != 0 {
+        let color = if discriminant as i32 & 1 != 0 {
             Vec3::new(3., 1., 1.)
         } else {
             Vec3::new(3., 3., 3.)
