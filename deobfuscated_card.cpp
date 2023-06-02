@@ -64,9 +64,11 @@ int trace(Vector3 o, Vector3 d, float &distance, Vector3 &surface_normal)
     float intersection_distance = -o.z / d.z;
 
     if (.01 < intersection_distance)
+    {
         distance = intersection_distance;
-    surface_normal = Vector3(0, 0, 1);
-    material = 1;
+        surface_normal = Vector3(0, 0, 1);
+        material = 1;
+    }
 
     for (int k = 19; k--;)
     {
@@ -92,6 +94,7 @@ int trace(Vector3 o, Vector3 d, float &distance, Vector3 &surface_normal)
             }
         }
     }
+    
     return material;
 }
 
