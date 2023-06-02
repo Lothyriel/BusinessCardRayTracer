@@ -57,17 +57,21 @@ float random_normalized()
     return (float)rand() / RAND_MAX;
 }
 
-int trace(Vector3 o, Vector3 d, float &t, Vector3 &n)
+int trace(Vector3 o, Vector3 d, float &distance, Vector3 &surface_normal)
 {
-    t = 1e9;
-    int m = 0;
-    float p = -o.z / d.z;
+    distance = 1e9;
+    int material = 0;
+    float intersection_distance = -o.z / d.z;
 
-    if (.01 < p)
-        t = p, n = Vector3(0, 0, 1), m = 1;
+    if (.01 < intersection_distance)
+        distance = intersection_distance;
+    surface_normal = Vector3(0, 0, 1);
+    material = 1;
 
     for (int k = 19; k--;)
+    {
         for (int j = 9; j--;)
+        {
             if (spheres_location[j] & 1 << k)
             {
                 Vector3 p = o + Vector3(-k, 0, -j - 4);
@@ -78,11 +82,17 @@ int trace(Vector3 o, Vector3 d, float &t, Vector3 &n)
                 if (q > 0)
                 {
                     float s = -b - sqrt(q);
-                    if (s < t && s > .01)
-                        t = s, n = !(p + d * t), m = 2;
+                    if (s < distance && s > .01)
+                    {
+                        distance = s;
+                        surface_normal = !(p + d * distance);
+                        material = 2;
+                    }
                 }
             }
-    return m;
+        }
+    }
+    return material;
 }
 
 Vector3 sample(Vector3 o, Vector3 d)
@@ -108,7 +118,8 @@ Vector3 sample(Vector3 o, Vector3 d)
     if (material & 1)
     {
         hit_point = hit_point * .2;
-        return ((int)(ceil(hit_point.x) + ceil(hit_point.y)) & 1 ? Vector3(3, 1, 1) : Vector3(3, 3, 3)) * (brightness * .2 + .1);
+        Vector3 valor_secreto = ((int)(ceil(hit_point.x) + ceil(hit_point.y)) & 1 ? Vector3(3, 1, 1) : Vector3(3, 3, 3));
+        return valor_secreto * (brightness * .2 + .1);
     }
 
     return Vector3(contribution, contribution, contribution) + sample(hit_point, reflected_ray) * .5;
