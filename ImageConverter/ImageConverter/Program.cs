@@ -1,6 +1,6 @@
 ﻿using ImageConverter;
 
-var path = "..//..//..//card.ppm";
+var path = "..//..//..//..//..//card.ppm";
 
 var file = File.ReadAllText(path);
 
