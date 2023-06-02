@@ -88,8 +88,8 @@ fn trace(o: Vector3, d: Vector3, distance: &mut f32, surface_normal: &mut Vector
 
     for k in (0..19).rev() {
         for j in (0..9i32).rev() {
-            let a = SPHERES_LOCATION[j as usize] & 1 << k;
-            if is_odd(a as i32) {
+            let render_sphere = SPHERES_LOCATION[j as usize] & 1 << k != 0;
+            if render_sphere {
                 let p = o.add(Vector3::new(-k as f32, 0., -j as f32 - 4.));
 
                 let b = p.dot_product(d);
@@ -123,15 +123,13 @@ fn sample_pixel_color(o: Vector3, d: Vector3) -> Vector3 {
         return Vector3::new(0.7, 0.6, 1.).scale(a1.powf(4.));
     }
 
-    let hit_point = o.add(d).scale(distance);
+    let mut hit_point = o.add(d.scale(distance));
 
     let light_direction = Vector3::new(9. + random(), 9. + random(), 16.)
         .add(hit_point.scale(-1.))
         .normalize();
 
-    let reflected_ray = d
-        .add(surface_normal)
-        .scale(surface_normal.dot_product(d) * -2.);
+    let reflected_ray = d.add(surface_normal.scale(surface_normal.dot_product(d) * -2.));
 
     let mut brightness = light_direction.dot_product(surface_normal);
 
@@ -146,8 +144,12 @@ fn sample_pixel_color(o: Vector3, d: Vector3) -> Vector3 {
         brightness = 0.;
     }
 
-    if is_odd(material) {
-        let valor_secreto = if is_odd((hit_point.x.ceil() + hit_point.y.ceil()) as i32) {
+    if material & 1 != 0 {
+        hit_point = hit_point.scale(0.2);
+
+        let valor = hit_point.x.ceil() + hit_point.y.ceil();
+
+        let valor_secreto = if valor as i32 & 1 != 0 {
             Vector3::new(3., 1., 1.)
         } else {
             Vector3::new(3., 3., 3.)
@@ -163,10 +165,5 @@ fn sample_pixel_color(o: Vector3, d: Vector3) -> Vector3 {
     };
 
     Vector3::new(contribution, contribution, contribution)
-        .add(sample_pixel_color(hit_point, reflected_ray))
-        .scale(0.5)
-}
-
-fn is_odd(number: i32) -> bool {
-    number & 1 == 1
+        .add(sample_pixel_color(hit_point, reflected_ray).scale(0.5))
 }
