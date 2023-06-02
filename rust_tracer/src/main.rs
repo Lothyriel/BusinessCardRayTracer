@@ -199,6 +199,6 @@ fn save_as_png(width: u32, height: u32, pixels: Vec<Vec3>) {
     });
 
     image_buffer
-        .save(Path::new("..//..//output_library.png"))
+        .save(Path::new("output_library.png"))
         .expect("Failed to save image");
 }
