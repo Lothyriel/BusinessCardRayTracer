@@ -1,3 +1,6 @@
+use std::path::Path;
+
+use image::{ImageBuffer, Rgb};
 use rand::Rng;
 use vector::Vec3;
 
@@ -24,10 +27,23 @@ fn main() {
     let width = 512;
     let height = 512;
 
-    render_image(width, height);
+    let pixels = render_image(width, height);
+
+    save_as_png(width, height, pixels);
 }
 
-fn render_image(width: u32, height: u32) {
+fn save_as_png(width: u32, height: u32, pixels: Vec<Vec3>) {
+    let image_buffer = ImageBuffer::from_fn(width, height, |x, y| {
+        let pixel = pixels[(y * width + x) as usize];
+        Rgb([pixel.x as u8, pixel.y as u8, pixel.z as u8])
+    });
+
+    image_buffer
+        .save(Path::new("..//..//output_library.png"))
+        .expect("Failed to save image");
+}
+
+fn render_image(width: u32, height: u32) -> Vec<Vec3> {
     let camera_direction = Vec3::new(-6., -16., 0.).norm();
 
     let camera_right = Vec3::new(0., 0., 1.)
@@ -41,6 +57,8 @@ fn render_image(width: u32, height: u32) {
         .add(camera_up)
         .scale(-256.)
         .add(camera_direction);
+
+    let mut pixels = vec![];
 
     for y in (0..height).rev() {
         for x in (0..width).rev() {
@@ -66,12 +84,11 @@ fn render_image(width: u32, height: u32) {
                 pixel_color = sampled_pixel_color.scale(3.5).add(pixel_color);
             }
 
-            print!(
-                "{} {} {}\n",
-                pixel_color.x as i32, pixel_color.y as i32, pixel_color.z as i32
-            );
+            pixels.push(pixel_color);
         }
     }
+
+    pixels
 }
 
 fn random() -> f32 {
