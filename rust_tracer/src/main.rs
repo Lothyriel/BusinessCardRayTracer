@@ -46,13 +46,14 @@ fn render_image(width: u32, height: u32) -> Vec<Vec3> {
         .scale(-256.)
         .add(camera_direction);
 
-    let a = (0..height).rev().flat_map(|y| {
-        (0..width)
-            .rev()
-            .map(move |x| get_pixel_color(camera_right, camera_up, x, y, camera_position))
-    });
-
-    a.collect()
+    (0..height)
+        .rev()
+        .flat_map(|y| {
+            (0..width)
+                .rev()
+                .map(move |x| get_pixel_color(camera_right, camera_up, x, y, camera_position))
+        })
+        .collect()
 }
 
 fn get_pixel_color(camera_right: Vec3, camera_up: Vec3, x: u32, y: u32, camera_pos: Vec3) -> Vec3 {
