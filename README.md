@@ -15,6 +15,7 @@ Rust
 - altered the final output encoding to a custom format of one pixel colors in RGB per line
 - created a program in C# to convert from this custom format to bitmap then .PNG
 - recreated the original program in Rust!!!!
+- used rust library to output directly to .png
 
 
 # ![3D Rendered output with my initials](https://github.com/Lothyriel/BusinessCardRayTracer/blob/main/output.png)
