@@ -10,7 +10,7 @@ Rust
     run: cargo run --release
 
 
-- deobfuscated some names and typedefs to make it cleared to read
+- deobfuscated some names and typedefs to make it clearer to read
 - altered the original "AEK" letters bit-encoded in the numbers to my initials "JX"
 - altered the final output encoding to a custom format of one pixel colors in RGB per line
 - created a program in C# to convert from this custom format to bitmap then .PNG
