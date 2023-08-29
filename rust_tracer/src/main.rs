@@ -26,6 +26,8 @@ fn main() {
     let width = 512;
     let height = 512;
 
+    println!("Starting rendering {}x{} pixels", width, height);
+
     let pixels = render_image(width, height);
 
     save_as_png(width, height, pixels);
